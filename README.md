@@ -7,7 +7,7 @@ Setup
 * cd ~
 * mkdir .psswdmgr
 * mkdir .psswdmgr/sites
-* mkdir .psswdmgr/site/psswd
+* mkdir .psswdmgr/sites/psswd
 2. Look for the variables called "psswdSalt" and "salt" and change them as desired.
 3. Compile the password manager and run it.
 
