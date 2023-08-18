@@ -8,7 +8,6 @@ Setup
 * mkdir .psswdmgr
 * mkdir .psswdmgr/sites
 * mkdir .psswdmgr/site/psswd
-3. Look for all instances of "/home/[USER]/.psswdmgr/sites/" and "/home/[USER]/.psswdmgr/sites/psswd/" in main.c and replace "[USER]" with your username.
 4. Look for the variables called "psswdSalt" and "salt" and change them as desired.
 5. Compile the password manager and run it.
 
