@@ -10,6 +10,7 @@ TODO:
 #include "psswdmgrjson/mkjson.h"
 #include "b64/b64.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
@@ -61,6 +62,11 @@ void getStringAndExcludeNewline(char *str, size_t size)
 
 int siteBuildPrompt(void) 
 {
+	// Directory buffer
+	char dir[128];
+	snprintf(dir, 128, "%s/.psswdmgr/sites/", getenv("HOME"));
+
+	// Struct with site constraints
 	siteStruct site;
 	site.pasCount = 0;
 
@@ -77,7 +83,7 @@ int siteBuildPrompt(void)
 	getStringAndExcludeNewline(site.reqChars, 64);
 
 	printf("\nBuilding JSON...");
-	if(writeJSON(&site, "/home/[USER]/.psswdmgr/sites/"))
+	if(writeJSON(&site, dir))
 	{
 		printf(" Failed\n\n");
 		return 1;
@@ -86,12 +92,11 @@ int siteBuildPrompt(void)
 	printf(" Done\n\n");
 
 	// Generate an empty password file for the site
-	char psswdFile[256] = "/home/[USER]/.psswdmgr/sites/psswd/";
-	strncat(psswdFile, site.siteName, 64);
-	strncat(psswdFile, ".txt", 64);
+	memset(dir, 0, 128);
+	snprintf(dir, 128, "%s/.psswdmgr/sites/psswd/%s.txt", getenv("HOME"), site.siteName);
 
 	FILE *fp;
-	fp = fopen(psswdFile, "w");
+	fp = fopen(dir, "w");
 	fclose(fp);
 
 	return 0;
@@ -214,18 +219,17 @@ int main(void)
 
 		// Do verification stuff		
 		// Check if site exists
-		char dirJson[128] = "/home/[USER]/.psswdmgr/sites/";
-		strncat(dirJson, key2, 64);
-		strcat(dirJson, ".json");
+		char dirJson[128];
+		snprintf(dirJson, 128, "%s/.psswdmgr/sites/%s.json", getenv("HOME"), key2);
+		
 		if(access(dirJson, F_OK)) {
 			fprintf(stderr, "Could not locate specified site...\n");
 			return 1;
 		}
 
 		// Dir for psswd hash
-		char dirTxt[128] = "/home/[USER]/.psswdmgr/sites/psswd/";
-		strncat(dirTxt, key2, 64);
-		strcat(dirTxt, ".txt");
+		char dirTxt[128];
+		snprintf(dirTxt, 128, "%s/.psswdmgr/sites/psswd/%s.txt", getenv("HOME"), key2);
 
 		// Check if file is empty then write the hashed password
 		argon2_params psswdParams;
