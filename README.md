@@ -4,13 +4,13 @@ A simple password manager built in C that makes use of the powerful Argon2 hashi
 Setup
 -
 1. Make the necessary directories:
-cd ~
-mkdir .psswdmgr
-mkdir .psswdmgr/sites
-mkdir .psswdmgr/site/psswd
-2. Look for all instances of "/home/[USER]/.psswdmgr/sites/" and "/home/[USER]/.psswdmgr/sites/psswd/" in main.c and replace "[USER]" with your username.
-3. Look for the variables called "psswdSalt" and "salt" and change them as desired.
-4. Compile the password manager and run it.
+* cd ~
+* mkdir .psswdmgr
+* mkdir .psswdmgr/sites
+* mkdir .psswdmgr/site/psswd
+3. Look for all instances of "/home/[USER]/.psswdmgr/sites/" and "/home/[USER]/.psswdmgr/sites/psswd/" in main.c and replace "[USER]" with your username.
+4. Look for the variables called "psswdSalt" and "salt" and change them as desired.
+5. Compile the password manager and run it.
 
 Commands
 -
