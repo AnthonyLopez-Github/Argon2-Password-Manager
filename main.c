@@ -1,6 +1,5 @@
 /*
 TODO:
-- Replace myItoa function. Use something better.
 - Add a command for incrementing the password change counter of sites
 - Rename some variables to make the code less confusing
 - Find and fix bugs
@@ -177,13 +176,6 @@ int commandMode(void) {
 	return 0;
 }
 
-char *myItoa(int number) 
-{
-   static char buff[16];
-   snprintf(buff, 16, "%d", number);
-   return buff;
-}
-
 int main(void) 
 {
 	if(!commandMode())
@@ -309,7 +301,7 @@ int main(void)
 			return 1;
 		}
 	
-		strncat(key1, myItoa(site.pasCount), 16);
+		snprintf(key1, 128, "%s%d", strdup(key1), site.pasCount);
 
 		// Concat inputs
 		strncat(key1, key2, (256 - strlen(key1)));
