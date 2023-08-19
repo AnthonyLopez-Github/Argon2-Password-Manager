@@ -301,7 +301,9 @@ int main(void)
 			return 1;
 		}
 	
-		snprintf(key1, 128, "%s%d", strdup(key1), site.pasCount);
+		char *key1Strdup = strdup(key1);
+		snprintf(key1, 128, "%s%d", key1Strdup, site.pasCount);
+		free(key1Strdup);
 
 		// Concat inputs
 		strncat(key1, key2, (256 - strlen(key1)));
