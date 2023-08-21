@@ -1,6 +1,8 @@
 /*
 TODO:
-- Add a command for incrementing the password change counter of sites
+- Fix b64 memory leak
+- Let all commands re-enter command mode after use except for "exit"
+- Restructure code -> Move password generation stuff from main to its own function
 - Rename some variables to make the code less confusing
 - Find and fix bugs
 */
@@ -25,6 +27,7 @@ typedef enum
 {
 	CMD_MAKE_SITE = 0,
 	CMD_GEN_PASSWD,
+	CMD_INC,
 	CMD_EXIT,
 	CMD_INVALID
 } command_t;
@@ -33,6 +36,7 @@ char *commandTable[] =
 {
 	"make site",
 	"gen psswd",
+	"inc count",
 	"exit"
 };
 
@@ -57,6 +61,38 @@ void getStringAndExcludeNewline(char *str, size_t size)
 	{
 		c = getchar();
 	}
+}
+
+int incPasCount(void) 
+{
+	char dir[128];
+	char inputBuff[64];
+
+	printf("\n[site] >>> ");
+	getStringAndExcludeNewline(inputBuff, 64);
+
+	snprintf(dir, 128, "%s/.psswdmgr/sites/%s.json", getenv("HOME"), inputBuff);
+
+	// Make sure the site exists
+	if(access(dir, F_OK)) {
+		fprintf(stderr, "Could not locate specified site...\n");
+		return 1;
+	}
+
+	// Struct for storing site information
+	siteStruct site;
+	if(readJSON(&site, dir)) return 1;
+
+	memset(dir, 0, 128);
+	snprintf(dir, 128, "%s/.psswdmgr/sites/", getenv("HOME"));
+
+	// Increment and write
+	site.pasCount++;
+	if(writeJSON(&site, dir)) return 1;
+
+	printf("Incremented password change count for \"%s\" to: %d\n\n", inputBuff, site.pasCount);
+
+	return 0;
 }
 
 int siteBuildPrompt(void) 
@@ -104,14 +140,11 @@ int siteBuildPrompt(void)
 int applyConstraintsToPassword(char *pswd, char *dirJson) 
 {
 	siteStruct site;
-	if(readJSON(&site, dirJson))
-	{
-		return 1;
-	}
+	if(readJSON(&site, dirJson)) return 1;
 
 	printf("Retrieved password constraints...\n");
 
-	// Strip out characters that are not allowed
+	// Strip out characters that are not allowed | Might be able to replace with a C function
 	for(int i = 0 ; i < strlen(pswd) ; i++) 
 	{
 		for(int j = 0 ; j < strlen(site.banChars) ; j++)
@@ -157,7 +190,11 @@ int commandMode(void) {
 			case CMD_GEN_PASSWD:
 				loop = 0;
 				break;
+			case CMD_INC:
+				if(incPasCount()) return 1;
+				break;
 			case CMD_EXIT:
+				printf("Exiting...\n");
 				return 1;
 				break;
 			case CMD_INVALID:
@@ -195,7 +232,7 @@ int main(void)
 
 		// Copy key 1 and hash it. Save hash to a file. Make sure site JSON for key 2 exists first.
 		char key1[256];
-		printf("[key] >>> ");
+		printf("\n[key] >>> ");
 		getStringAndExcludeNewline(key1, 64);
 
 		char key2[64];
@@ -296,10 +333,7 @@ int main(void)
 
 		// Append password change counter to key1
 		siteStruct site;
-		if(readJSON(&site, dirJson))
-		{
-			return 1;
-		}
+		if(readJSON(&site, dirJson)) return 1;
 	
 		char *key1Strdup = strdup(key1);
 		snprintf(key1, 128, "%s%d", key1Strdup, site.pasCount);
