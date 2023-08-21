@@ -15,6 +15,7 @@ Commands
 -
 * make site
 * gen psswd
+* inc count
 * exit
 
 The "make site" command will build a JSON that will be used later to apply constraints to your password after it is generated.
@@ -24,6 +25,8 @@ The "make site" command will build a JSON that will be used later to apply const
 
 The "gen psswd" command will generate a password for a chosen site. Please note that it is required you make a site first before using this command.
 * If this is the first time gen psswd is run on a site, it will store a hashed version of the key in a file for future reference.
+
+The "inc count" command will increment the password change counter for the site you provide it. Be careful when using this as it will change the output of the generated password.
 
 The "exit" command will close the program.
 
